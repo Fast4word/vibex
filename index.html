@@ -1,1 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple AI App Builder with GitHub Save</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .panel {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: #34495e;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        #component-palette {
+            border: 1px dashed #ccc;
+            min-height: 200px;
+            padding: 15px;
+            text-align: center;
+            color: #777;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #app-preview {
+            border: 1px solid #ddd;
+            min-height: 300px;
+            padding: 15px;
+            background-color: #fdfdfd;
+            border-radius: 5px;
+        }
+        textarea, input[type="text"], input[type="password"] {
+            width: 100%;
+            min-height: 38px; /* Standardize height for inputs */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 10px; /* Adjust padding for consistency */
+            font-family: 'Courier New', Courier, monospace; /* Maintain for textarea */
+            font-size: 14px;
+            box-sizing: border-box; /* Include padding in width */
+            margin-top: 5px; /* Spacing below label */
+            margin-bottom: 10px; /* Spacing above next element */
+        }
+        label {
+            display: block; /* Make labels block level for better spacing */
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Simple AI App Builder</h1>
+        <p>Build your app and save it directly to GitHub!</p>
+    </header>
 
+    <div class="container">
+        <div class="panel">
+            <h2>Components</h2>
+            <div id="component-palette">
+                <!-- Draggable AI components would go here -->
+                <p>Drag & Drop UI components here</p>
+                <div draggable="true" style="border: 1px solid #ddd; padding: 8px; margin: 5px; background-color: #eee; cursor: grab;">Input Field</div>
+                <div draggable="true" style="border: 1px solid #ddd; padding: 8px; margin: 5px; background-color: #eee; cursor: grab;">AI Output Display</div>
+                <div draggable="true" style="border: 1px solid #ddd; padding: 8px; margin: 5px; background-color: #eee; cursor: grab;">Button</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>App Canvas</h2>
+            <div id="app-preview">
+                <!-- Dropped components will render here -->
+                <p>Your app UI will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 20px;">
+        <div class="panel" style="flex: 2;">
+            <h2>AI Logic / Configuration</h2>
+            <textarea id="ai-logic-editor" placeholder="Write your AI logic or configuration here. This could be a Python snippet, JSON config, etc."></textarea>
+
+            <label for="github-username">GitHub Username:</label>
+            <input type="text" id="github-username" placeholder="your-username">
+
+            <label for="github-token">GitHub Personal Access Token:</label>
+            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button id="save-token" style="background-color: #007bff;">Save Token Locally</button>
+            <p id="token-status" style="margin-top: 10px; font-size: 0.9em; color: #555;"></p>
+
+            <label for="repo-name">GitHub Repo Name:</label>
+            <input type="text" id="repo-name" placeholder="my-ai-app">
+
+            <label for="file-path">File Path (e.g., src/main.py or index.html):</label>
+            <input type="text" id="file-path" value="index.html">
+
+            <button id="save-to-github">Save Project to GitHub</button>
+            <p id="github-status" style="margin-top: 10px; font-size: 0.9em; color: #555;"></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Simple AI App Builder. Built with ❤️</p>
+    </footer>
+
+    <script>
+        // --- UI Interaction Logic (Drag and Drop) ---
+        const componentPalette = document.getElementById('component-palette');
+        const appPreview = document.getElementById('app-preview');
+        let draggedComponent = null;
+
+        componentPalette.addEventListener('dragstart', (e) => {
+            if (e.target.draggable) {
+                draggedComponent = e.target;
+                e.dataTransfer.setData('text/plain', e.target.textContent); // For data transfer
+                e.target.style.opacity = '0.5';
+            }
+        });
+
+        componentPalette.addEventListener('dragend', (e) => {
+            if (draggedComponent) {
+                draggedComponent.style.opacity = '1';
+                draggedComponent = null;
+            }
+        });
+
+        appPreview.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow drop
+            appPreview.style.backgroundColor = '#e0ffe0'; // Visual feedback
+        });
+
+        appPreview.addEventListener('dragleave', (e) => {
+            appPreview.style.backgroundColor = '#fdfdfd'; // Reset feedback
+        });
+
+        appPreview.addEventListener('drop', (e) => {
+            e.preventDefault();
+            appPreview.style.backgroundColor = '#fdfdfd'; // Reset feedback
+
+            if (draggedComponent) {
+                const newElement = document.createElement('div');
+                newElement.textContent = draggedComponent.textContent;
+                newElement.style.border = '1px solid #66bb6a';
+                newElement.style.padding = '10px';
+                newElement.style.margin = '5px';
+                newElement.style.backgroundColor = '#e8f5e9';
+                newElement.style.borderRadius = '3px';
+                newElement.style.textAlign = 'left';
+                if (appPreview.querySelector('p')) { // Remove placeholder if it exists
+                    appPreview.querySelector('p').remove();
+                }
+                appPreview.appendChild(newElement);
+            }
+        });
+
+        // --- GitHub Integration Logic ---
+        const githubUsernameInput = document.getElementById('github-username');
+        const githubTokenInput = document.getElementById('github-token');
+        const saveTokenButton = document.getElementById('save-token');
+        const tokenStatus = document.getElementById('token-status');
+        const saveButton = document.getElementById('save-to-github');
+        const aiLogicEditor = document.getElementById('ai-logic-editor');
+        const repoNameInput = document.getElementById('repo-name');
+        const filePathInput = document.getElementById('file-path');
+        const githubStatus = document.getElementById('github-status');
+
+        // Load token and username from localStorage on page load
+        window.addEventListener('load', () => {
+            const storedUsername = localStorage.getItem('githubUsername');
+            const storedToken = localStorage.getItem('githubToken');
+            if (storedUsername) {
+                githubUsernameInput.value = storedUsername;
+            }
+            if (storedToken) {
+                githubTokenInput.value = '********'; // Mask token for display
+                tokenStatus.textContent = 'Token loaded from browser storage.';
+                tokenStatus.style.color = 'green';
+            } else {
+                tokenStatus.textContent = 'No token found in browser storage.';
+                tokenStatus.style.color = '#555';
+            }
+        });
+
+        // Save token to localStorage
+        saveTokenButton.addEventListener('click', () => {
+            const username = githubUsernameInput.value.trim();
+            const token = githubTokenInput.value.trim();
+
+            if (!username || !token || token === '********') {
+                tokenStatus.textContent = "Please enter your GitHub username and Personal Access Token.";
+                tokenStatus.style.color = 'red';
+                return;
+            }
+
+            localStorage.setItem('githubUsername', username);
+            localStorage.setItem('githubToken', token);
+            tokenStatus.textContent = "GitHub token and username saved to browser storage!";
+            tokenStatus.style.color = 'green';
+            githubTokenInput.value = '********'; // Mask token after saving
+        });
+
+        saveButton.addEventListener('click', async () => {
+            const USERNAME = githubUsernameInput.value.trim();
+            const GITHUB_TOKEN = localStorage.getItem('githubToken'); // Get token from storage
+
+            if (!USERNAME || !GITHUB_TOKEN) {
+                githubStatus.textContent = "Please enter your GitHub username and save your Personal Access Token first.";
+                githubStatus.style.color = 'red';
+                return;
+            }
+
+            const repo = repoNameInput.value.trim();
+            const path = filePathInput.value.trim();
+            const content = aiLogicEditor.value; // Or the generated HTML from appPreview
+
+            if (!repo || !path || !content) {
+                githubStatus.textContent = "Please fill in repository name, file path, and some content.";
+                githubStatus.style.color = 'red';
+                return;
+            }
+
+            githubStatus.textContent = "Saving to GitHub...";
+            githubStatus.style.color = '#555';
+
+            const apiUrl = `https://api.github.com/repos/${USERNAME}/${repo}/contents/${path}`;
+
+            try {
+                // First, check if the file exists to determine if we need to update or create
+                const getResponse = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let sha = null;
+                if (getResponse.ok) {
+                    const data = await getResponse.json();
+                    sha = data.sha; // Get SHA for updating existing file
+                } else if (getResponse.status === 404) { // 404 means file not found, which is fine for creation
+                    // File does not exist, will create a new one
+                } else {
+                    throw new Error(`Failed to check file existence: ${getResponse.statusText} - ${getResponse.status}`);
+                }
+
+                // Encode content to Base64 as required by GitHub API
+                const base64Content = btoa(unescape(encodeURIComponent(content)));
+
+                const payload = {
+                    message: `Update ${path} from AI App Builder`,
+                    content: base64Content,
+                    sha: sha // Include SHA if updating an existing file
+                };
+
+                const putResponse = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (putResponse.ok) {
+                    githubStatus.textContent = "Project saved to GitHub successfully!";
+                    githubStatus.style.color = 'green';
+                } else {
+                    const errorData = await putResponse.json();
+                    throw new Error(`GitHub API error: ${putResponse.statusText} - ${errorData.message}`);
+                }
+
+            } catch (error) {
+                console.error("Error saving to GitHub:", error);
+                githubStatus.textContent = `Error saving: ${error.message}. Please check your username, token, repo name, and file path.`;
+                githubStatus.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
