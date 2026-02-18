@@ -3,707 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sleek AI App Builder with GitHub Save</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AetherForge: AI-Powered Dev Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base Dark Theme Variables */
         :root {
-            --primary-color: #6C63FF; /* A vibrant purple */
-            --secondary-color: #5C53D4;
-            --background-color: #f4f7f6;
-            --surface-color: #ffffff;
-            --text-color: #333;
-            --text-light: #666;
-            --border-color: #e0e0e0;
-            --shadow-light: rgba(0, 0, 0, 0.05);
-            --shadow-medium: rgba(0, 0, 0, 0.1);
-            --success-color: #28a745;
-            --error-color: #dc3545;
-            --info-color: #007bff;
+            --primary-color: #BB86FC; /* Purple-ish */
+            --primary-light: #CFB8FC;
+            --secondary-color: #03DAC6; /* Teal-ish */
+            --background-dark: #121212;
+            --surface-dark: #1E1E1E;
+            --card-dark: #2A2A2A;
+            --text-light: #E0E0E0;
+            --text-secondary: #B0B0B0;
+            --text-tertiary: #888888;
+            --border-dark: #333333;
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --success-color: #00C853;
+            --error-color: #CF6679;
+            --info-color: #2196F3;
+            --warning-color: #FFC107;
+
+            /* Layout specifics */
+            --header-height: 50px;
+            --footer-height: 40px;
+            --grid-gap: 15px;
+        }
+
+        /* Global Reset & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: var(--background-dark);
+            color: var(--text-light);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow: hidden; /* Prevent body scroll, let panels handle it */
+            font-size: 14px;
         }
 
+        /* Header */
         header {
-            background-color: var(--surface-color);
-            padding: 15px 30px;
-            box-shadow: 0 2px 5px var(--shadow-light);
+            background-color: var(--surface-dark);
+            height: var(--header-height);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 var(--grid-gap);
+            box-shadow: 0 2px 5px var(--shadow-dark);
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border-dark);
         }
 
         header h1 {
             margin: 0;
-            font-size: 1.8em;
+            font-size: 1.5em;
             color: var(--primary-color);
             font-weight: 700;
         }
 
-        .main-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr 300px; /* Nav, Main, Chat/AI */
-            grid-template-rows: auto 1fr; /* Header + Content */
-            gap: 20px;
-            padding: 20px;
-            flex-grow: 1;
-        }
-
-        .panel {
-            background-color: var(--surface-color);
-            border-radius: 10px;
-            box-shadow: 0 3px 10px var(--shadow-light);
-            padding: 20px;
+       .header-controls {
             display: flex;
-            flex-direction: column;
-            overflow: hidden; /* For content overflow */
-        }
-
-        .panel h2 {
-            margin-top: 0;
-            font-size: 1.3em;
-            color: var(--text-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        /* Specific Panel Layouts */
-        .components-panel {
-            grid-column: 1 / 2;
-            grid-row: 1 / 3;
-        }
-
-        .app-canvas-panel {
-            grid-column: 2 / 3;
-            grid-row: 1 / 2;
-        }
-
-        .ai-logic-panel {
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
-        }
-
-        .ai-chat-panel {
-            grid-column: 3 / 4;
-            grid-row: 1 / 3;
-            display: grid;
-            grid-template-rows: auto 1fr auto; /* Title, Chat content, Input */
-        }
-
-        /* Component Palette */
-        #component-palette {
-            border: 1px dashed var(--border-color);
-            min-height: 150px;
-            padding: 10px;
-            text-align: center;
-            color: var(--text-light);
-            background-color: var(--background-color);
-            border-radius: 5px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .draggable-component {
-            background-color: #e8f5e9; /* Light green for components */
-            border: 1px solid #66bb6a;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 5px;
-            cursor: grab;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-align: left;
-            transition: background-color 0.2s ease;
-        }
-
-        .draggable-component:hover {
-            background-color: #dcedc8;
-        }
-
-        /* App Canvas */
-        #app-preview {
-            border: 1px solid var(--border-color);
-            min-height: 250px;
-            padding: 15px;
-            background-color: #fdfdfd;
-            border-radius: 5px;
-            flex-grow: 1;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        #app-preview p.placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--text-light);
-            font-style: italic;
-        }
-
-        .dropped-component {
-            background-color: #e0f2f7; /* Light blue for dropped components */
-            border: 1px solid #4fc3f7;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 5px;
-            text-align: left;
-            font-size: 0.95em;
-        }
-
-        /* AI Logic / Configuration */
-        textarea, input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9em;
-            box-sizing: border-box;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            transition: border-color 0.2s ease;
-        }
-
-        textarea:focus, input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-            font-family: 'Courier New', Courier, monospace; /* Code font for logic */
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: 500;
-            color: var(--text-color);
-            font-size: 0.9em;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 500;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            color: white;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-        }
-
-        button.primary {
-            background-color: var(--primary-color);
-        }
-        button.primary:hover {
-            background-color: var(--secondary-color);
-        }
-
-        button.secondary {
-            background-color: var(--info-color);
-        }
-        button.secondary:hover {
-            background-color: #0056b3;
-        }
-
-        .status-message {
-            margin-top: 10px;
-            font-size: 0.85em;
-            padding: 8px;
-            border-radius: 5px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            color: var(--text-light);
-        }
-        .status-message.success {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: var(--success-color);
-        }
-        .status-message.error {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-            color: var(--error-color);
-        }
-
-        /* AI Chat Panel */
-        #ai-chat-display {
-            flex-grow: 1;
-            padding: 10px;
-            background-color: var(--background-color);
-            border-radius: 5px;
-            margin-bottom: 10px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .chat-message {
-            max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-
-        .chat-user {
-            background-color: var(--primary-color);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-
-        .chat-ai {
-            background-color: #e9e9eb;
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-        }
-
-        #ai-chat-input-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        #ai-chat-input {
-            flex-grow: 1;
-            min-height: 38px;
-            font-family: 'Inter', sans-serif;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        #send-ai-chat {
-            padding: 10px 15px;
-            font-size: 0.9em;
-            background-color: var(--primary-color);
-        }
-        #send-ai-chat:hover {
-            background-color: var(--secondary-color);
-        }
-
-        /* Files Panel */
-        .files-panel {
-            grid-column: 1 / 2; /* Still under components, or could be a separate column */
-            grid-row: 2 / 3; /* If separate, it would be another column */
-            display: flex;
-            flex-direction: column;
-        }
-
-        #file-list {
-            flex-grow: 1;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--background-color);
-            padding: 10px;
-            overflow-y: auto;
-            font-size: 0.9em;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px dotted #eee;
-            cursor: pointer;
-        }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-item span {
-            color: var(--text-color);
-        }
-        .file-item .delete-file {
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            color: #888;
-            border-radius: 3px;
-            font-size: 0.7em;
-            padding: 3px 7px;
-            cursor: pointer;
-            visibility: hidden; /* Hide by default */
-        }
-        .file-item:hover .delete-file {
-            visibility: visible; /* Show on hover */
-        }
-        .file-item .delete-file:hover {
-            background-color: var(--error-color);
-            color: white;
-            border-color: var(--error-color);
+            gap: 10px;
         }
 
-        .add-file-btn {
-            background-color: #20c997; /* Teal for add file */
-            margin-top: 10px;
-        }
-        .add-file-btn:hover {
-            background-color: #17a2b8;
+       .header-controls span {
+            font-size: 0.9em;
+            color: var(--text-secondary);
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 15px;
-            margin-top: 20px;
-            background-color: var(--surface-color);
-            box-shadow: 0 -2px 5px var(--shadow-light);
-            color: var(--text-light);
-            font-size: 0.85em;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .main-layout {
-                grid-template-columns: 200px 1fr 280px;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto auto;
-            }
-            .components-panel { grid-column: 1 / 2; grid-row: 1 / 2; }
-            .app-canvas-panel { grid-column: 1 / 2; grid-row: 2 / 3; }
-            .ai-logic-panel { grid-column: 1 / 2; grid-row: 3 / 4; }
-            .ai-chat-panel { grid-column: 1 / 2; grid-row: 4 / 5; }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>AetherForge AI Builder</h1>
-        <div>
-            <span style="font-size: 0.9em; margin-right: 10px;">Logged in as: <strong id="current-github-user">Guest</strong></span>
-            <button class="secondary" onclick="document.getElementById('token-settings').style.display = 'block'">Settings</button>
-        </div>
-    </header>
-
-    <div class="main-layout">
-        <!-- Left Sidebar: Components and Files -->
-        <div class="panel components-panel">
-            <h2>Components</h2>
-            <div id="component-palette">
-                <p class="placeholder-text">Drag & Drop UI components here</p>
-                <div draggable="true" class="draggable-component" data-component-type="input">Input Field</div>
-                <div draggable="true" class="draggable-component" data-component-type="display">AI Output Display</div>
-                <div draggable="true" class="draggable-component" data-component-type="button">Button</div>
-                <div draggable="true" class="draggable-component" data-component-type="text">Text Label</div>
-            </div>
-        </div>
-
-        <!-- Middle Section: App Canvas and AI Logic -->
-        <div class="panel app-canvas-panel">
-            <h2>App Canvas</h2>
-            <div id="app-preview">
-                <p class="placeholder-text">Your app UI will appear here</p>
-            </div>
-        </div>
-
-        <div class="panel ai-logic-panel">
-            <h2>AI Logic / Configuration</h2>
-            <textarea id="ai-logic-editor" placeholder="Write your AI logic, Python code, or configuration (e.g., JSON) here. This content will be saved to your specified file."></textarea>
-
-            <label for="repo-name">GitHub Repo Name:</label>
-            <input type="text" id="repo-name" placeholder="my-ai-app-project">
-
-            <label for="file-path">Current File Path:</label>
-            <input type="text" id="file-path" value="src/main.py">
-
-            <div class="button-group">
-                <button class="primary" id="save-to-github">Save to GitHub</button>
-            </div>
-            <div id="github-status" class="status-message"></div>
-        </div>
-
-        <!-- Right Sidebar: AI Chat -->
-        <div class="panel ai-chat-panel">
-            <h2>AI Assistant</h2>
-            <div id="ai-chat-display">
-                <div class="chat-ai chat-message">Hey there! How can I help you build your AI app today?</div>
-            </div>
-            <div id="ai-chat-input-container">
-                <input type="text" id="ai-chat-input" placeholder="Ask me about your app or code..." />
-                <button class="primary" id="send-ai-chat">Send</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hidden Settings Modal for GitHub Token -->
-    <div id="token-settings" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; display:flex; justify-content:center; align-items:center;">
-        <div class="panel" style="width:400px; padding:30px; border-radius:10px;">
-            <h2>GitHub Settings</h2>
-            <label for="github-username">GitHub Username:</label>
-            <input type="text" id="github-username" placeholder="your-username">
-
-            <label for="github-token">GitHub Personal Access Token:</label>
-            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-            <p style="font-size:0.8em; color:var(--text-light); margin-top:-5px;">(Requires 'repo' scope for full functionality)</p>
-
-            <div class="button-group" style="justify-content:flex-end;">
-                <button class="secondary" id="save-token">Save Token Locally</button>
-                <button class="secondary" onclick="document.getElementById('token-settings').style.display = 'none'">Close</button>
-            </div>
-            <div id="token-status" class="status-message"></div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2026 AetherForge. Crafted by Meta AI.</p>
-    </footer>
-
-    <script>
-        // --- UI Interaction Logic (Drag and Drop) ---
-        const componentPalette = document.getElementById('component-palette');
-        const appPreview = document.getElementById('app-preview');
-        let draggedComponent = null;
-
-        componentPalette.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('draggable-component')) {
-                draggedComponent = e.target;
-                e.dataTransfer.setData('text/plain', e.target.textContent);
-                e.dataTransfer.setData('component-type', e.target.dataset.componentType);
-                e.target.style.opacity = '0.5';
-            }
-        });
-
-        componentPalette.addEventListener('dragend', (e) => {
-            if (draggedComponent) {
-                draggedComponent.style.opacity = '1';
-                draggedComponent = null;
-            }
-        });
-
-        appPreview.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            appPreview.style.backgroundColor = '#eef'; // Light blue for dragover feedback
-        });
-
-        appPreview.addEventListener('dragleave', (e) => {
-            appPreview.style.backgroundColor = '#fdfdfd';
-        });
-
-        appPreview.addEventListener('drop', (e) => {
-            e.preventDefault();
-            appPreview.style.backgroundColor = '#fdfdfd';
-
-            if (draggedComponent) {
-                const componentType = e.dataTransfer.getData('component-type');
-                const newElement = document.createElement('div');
-                newElement.classList.add('dropped-component');
-
-                // Basic representation based on component type
-                switch(componentType) {
-                    case 'input':
-                        newElement.innerHTML = `<label>Input:</label><input type="text" placeholder="Type here...">`;
-                        break;
-                    case 'display':
-                        newElement.innerHTML = `<label>AI Output:</label><div style="min-height:30px; border:1px dashed #ccc; padding:5px;"></div>`;
-                        break;
-                    case 'button':
-                        newElement.innerHTML = `<button class="primary">Action Button</button>`;
-                        break;
-                    case 'text':
-                        newElement.innerHTML = `<p>Static Text Label</p>`;
-                        break;
-                    default:
-                        newElement.textContent = draggedComponent.textContent;
-                }
-
-                const placeholder = appPreview.querySelector('.placeholder-text');
-                if (placeholder) {
-                    placeholder.remove();
-                }
-                appPreview.appendChild(newElement);
-            }
-        });
-
-        // --- GitHub Integration Logic ---
-        const githubUsernameInput = document.getElementById('github-username');
-        const githubTokenInput = document.getElementById('github-token');
-        const saveTokenButton = document.getElementById('save-token');
-        const tokenStatus = document.getElementById('token-status');
-        const saveButton = document.getElementById('save-to-github');
-        const aiLogicEditor = document.getElementById('ai-logic-editor');
-        const repoNameInput = document.getElementById('repo-name');
-        const filePathInput = document.getElementById('file-path');
-        const githubStatus = document.getElementById('github-status');
-        const currentGithubUserSpan = document.getElementById('current-github-user');
-
-        const GITHUB_USERNAME_KEY = 'aetherforge_githubUsername';
-        const GITHUB_TOKEN_KEY = 'aetherforge_githubToken';
-
-        function updateStatus(element, message, type) {
-            element.textContent = message;
-            element.className = `status-message ${type || ''}`;
-        }
-
-        // Load token and username from localStorage on page load
-        window.addEventListener('load', () => {
-            const storedUsername = localStorage.getItem(GITHUB_USERNAME_KEY);
-            const storedToken = localStorage.getItem(GITHUB_TOKEN_KEY);
-            if (storedUsername) {
-                githubUsernameInput.value = storedUsername;
-                currentGithubUserSpan.textContent = storedUsername;
-            }
-            if (storedToken) {
-                // We don't display the actual token for security
-                githubTokenInput.value = '********';
-                updateStatus(tokenStatus, 'Token loaded from browser storage.', 'success');
-            } else {
-                updateStatus(tokenStatus, 'No token found in browser storage.', 'info');
-            }
-        });
-
-        // Save token to localStorage
-        saveTokenButton.addEventListener('click', () => {
-            const username = githubUsernameInput.value.trim();
-            const token = githubTokenInput.value.trim();
-
-            if (!username || !token || token === '********') {
-                updateStatus(tokenStatus, "Please enter your GitHub username and Personal Access Token.", 'error');
-                return;
-            }
-
-            localStorage.setItem(GITHUB_USERNAME_KEY, username);
-            localStorage.setItem(GITHUB_TOKEN_KEY, token);
-            currentGithubUserSpan.textContent = username;
-            githubTokenInput.value = '********'; // Mask token after saving
-            updateStatus(tokenStatus, "GitHub token and username saved to browser storage!", 'success');
-        });
-
-        saveButton.addEventListener('click', async () => {
-            const USERNAME = githubUsernameInput.value.trim();
-            const GITHUB_TOKEN = localStorage.getItem(GITHUB_TOKEN_KEY);
-
-            if (!USERNAME || !GITHUB_TOKEN) {
-                updateStatus(githubStatus, "Please enter your GitHub username and save your Personal Access Token in Settings first.", 'error');
-                return;
-            }
-
-            const repo = repoNameInput.value.trim();
-            const path = filePathInput.value.trim();
-            const content = aiLogicEditor.value;
-
-            if (!repo || !path || !content) {
-                updateStatus(githubStatus, "Please fill in repository name, file path, and some content for AI Logic.", 'error');
-                return;
-            }
-
-            updateStatus(githubStatus, "Saving to GitHub...", 'info');
-
-            const apiUrl = `https://api.github.com/repos/${USERNAME}/${repo}/contents/${path}`;
-
-            try {
-                let sha = null;
-                try {
-                    const getResponse = await fetch(apiUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `token ${GITHUB_TOKEN}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-                    if (getResponse.ok) {
-                        const data = await getResponse.json();
-                        sha = data.sha;
-                    } else if (getResponse.status !== 404) {
-                        // If not 404, it's a real error checking file existence
-                        throw new Error(`Failed to check file existence: ${getResponse.statusText} (${getResponse.status})`);
-                    }
-                } catch (fetchError) {
-                    // Catch network errors or other issues during GET
-                    console.warn("Could not check file existence, assuming new file or network issue:", fetchError);
-                }
-
-                const base64Content = btoa(unescape(encodeURIComponent(content)));
-
-                const payload = {
-                    message: `Update ${path} from AetherForge AI Builder`,
-                    content: base64Content,
-                    sha: sha
-                };
-
-                const putResponse = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (putResponse.ok) {
-                    updateStatus(githubStatus, "Project saved to GitHub successfully!", 'success');
-                } else {
-                    const errorData = await putResponse.json();
-                    throw new Error(`GitHub API error: ${putResponse.statusText} - ${errorData.message}`);
-                }
-
-            } catch (error) {
-                console.error("Error saving to GitHub:", error);
-                updateStatus(githubStatus, `Error saving: ${error.message}. Please check your username, token, repo name, and file path.`, 'error');
-            }
-        });
-
-        // --- AI Chat Logic (Conceptual) ---
-        const aiChatInput = document.getElementById('ai-chat-input');
-        const sendAiChatButton = document.getElementById('send-ai-chat');
-        const aiChatDisplay = document.getElementById('ai-chat-display');
-
-        sendAiChatButton.addEventListener('click', () => {
-            const userMessage = aiChatInput.value.trim();
-            if (userMessage) {
-                appendChatMessage(userMessage, 'user');
-                aiChatInput.value = '';
-                // In a real app, this would send to an LLM API and display its response
-                setTimeout(() => {
-                    appendChatMessage(`That's an interesting idea! For "${userMessage}", we could consider using a Python script with the OpenAI API. What kind of data will it process?`, 'ai');
-                }, 1000);
-            }
-        });
-
-        aiChatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendAiChatButton.click();
-            }
-        });
-
-        function appendChatMessage(message, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message', `chat-${sender}`);
-            messageElement.textContent = message;
-            aiChatDisplay.appendChild(messageElement);
-            aiChatDisplay.scrollTop = aiChatDisplay.scrollHeight; // Auto-scroll to bottom
-        }
-
-    </script>
-</body>
-</html>
+        /* Main Layout Grid - No Scrolling
